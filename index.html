@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Classes Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .modal-content {
+            animation: fadeInScale 0.3s ease-out forwards;
+        }
+        .animate-scale-hover {
+            transition: transform 0.3s ease-in-out;
+        }
+        .animate-scale-hover:hover {
+            transform: scale(1.02);
+        }
+        .animate-scale-add:hover {
+            transform: scale(1.1);
+        }
+        .animate-scale-delete:hover {
+            transform: scale(1.25);
+        }
+    </style>
+</head>
+<body class="bg-[#0F091A] min-h-screen text-[#e9d5ff] flex flex-col items-center">
+
+    <main class="w-full px-4 md:px-8 lg:px-12 py-6">
+        <!-- Header Section -->
+        <div class="w-full mb-8">
+            <div class="p-8 rounded-[2rem] shadow-xl bg-[#1A0B2C] text-center">
+                <div class="flex justify-center items-center gap-2">
+                    <svg viewBox="0 0 100 100" class="w-8 h-8 fill-white">
+                      <circle cx="50" cy="50" r="48" fill="none" stroke="white" stroke-width="4" />
+                      <circle cx="50" cy="50" r="10" fill="white" />
+                      <path d="M50 8 C69.8 8 86.8 25.2 86.8 50 C86.8 74.8 69.8 92 50 92 C30.2 92 13.2 74.8 13.2 50 C13.2 25.2 30.2 8 50 8z" fill="none" stroke="white" stroke-width="4" />
+                      <path d="M50 86 C66.5 86 80.2 72.3 80.2 56 C80.2 39.7 66.5 26 50 26 C33.5 26 19.8 39.7 19.8 56 C19.8 72.3 33.5 86 50 86z" fill="none" stroke="white" stroke-width="4" />
+                    </svg>
+                    <h1 class="text-3xl font-bold text-[#d8b4fe]">My Classes</h1>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Classes Section -->
+        <div id="class-cards-container" class="w-full flex flex-col gap-6 mb-8">
+            <!-- Class cards will be dynamically inserted here -->
+        </div>
+    
+        <!-- Quick Links Section -->
+        <div class="w-full bg-[#1A0B2C] p-6 rounded-[2rem] shadow-xl mb-8">
+            <h2 class="text-2xl font-bold text-[#d8b4fe] mb-4 text-center">Quick Links</h2>
+            <div id="quick-links-container" class="flex flex-row flex-wrap justify-center gap-4">
+                <!-- Quick links will be dynamically inserted here -->
+            </div>
+        </div>
+    
+        <hr class="w-full border-t-2 border-[#5B21B6] my-8" />
+    
+        <!-- Bell Schedule Section -->
+        <div class="w-full flex flex-col gap-6 mb-8">
+            <div class="bg-[#1A0B2C] p-8 rounded-[2rem] shadow-xl">
+                <h2 class="text-2xl font-bold text-[#d8b4fe] mb-4 text-center">Bell Schedules</h2>
+                <div id="bell-schedule-buttons" class="flex justify-center gap-2 flex-wrap mb-4">
+                    <!-- Bell schedule buttons will be dynamically inserted here -->
+                </div>
+                <div id="bell-schedule-table-container" class="bg-[#2D1A4A] p-6 rounded-3xl mt-4">
+                    <!-- Bell schedule table will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    
+        <hr class="w-full border-t-2 border-[#5B21B6] my-8" />
+    
+        <!-- Countdown Timer Section -->
+        <div class="w-full bg-[#1A0B2C] p-8 rounded-[2rem] shadow-xl text-center">
+            <h2 class="text-2xl font-bold text-[#d8b4fe] mb-4">Countdown Timer</h2>
+            <div class="flex flex-row justify-center gap-2 mb-4">
+                <select id="hour-select" class="p-3 rounded-xl bg-[#2D1A4A] border border-[#5B21B6] text-white text-base outline-none appearance-none">
+                    <option value="">Hour</option>
+                </select>
+                <select id="minute-select" class="p-3 rounded-xl bg-[#2D1A4A] border border-[#5B21B6] text-white text-base outline-none appearance-none">
+                    <option value="">Minute</option>
+                </select>
+                <select id="ampm-select" class="p-3 rounded-xl bg-[#2D1A4A] border border-[#5B21B6] text-white text-base outline-none appearance-none">
+                    <option value="am">AM</option>
+                    <option value="pm">PM</option>
+                </select>
+            </div>
+            <div id="countdown-time" class="text-4xl font-bold text-[#a7f3d0] min-h-[2.5rem]">
+                Select a time to start
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Task Modal (Initially hidden) -->
+    <div id="add-task-modal" class="fixed inset-0 bg-[rgba(0,0,0,0.75)] flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#1a102c] p-8 rounded-[2rem] w-full max-w-sm border border-[#5B21B6] shadow-xl modal-content" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-bold mb-4 text-[#d8b4fe]">Add Task</h2>
+            <form id="add-task-form" class="flex flex-col gap-4">
+                <input type="hidden" id="modal-class-id" />
+                <div>
+                    <label for="task-name" class="block font-semibold mb-1 text-[#e9d5ff]">Task Name</label>
+                    <input type="text" id="task-name" name="task-name" class="w-full p-3 rounded-xl bg-[#1A1A2E] border border-[#5B21B6] outline-none shadow-md text-white focus:ring-2 focus:ring-[#8b5cf6]" required />
+                </div>
+                <div>
+                    <label for="task-due-date" class="block font-semibold mb-1 text-[#e9d5ff]">Due Date</label>
+                    <input type="date" id="task-due-date" name="task-due-date" class="w-full p-3 rounded-xl bg-[#1A1A2E] border border-[#5B21B6] outline-none shadow-md text-white focus:ring-2 focus:ring-[#8b5cf6]" />
+                </div>
+                <div>
+                    <label for="task-priority" class="block font-semibold mb-1 text-[#e9d5ff]">Priority</label>
+                    <select id="task-priority" name="task-priority" class="w-full p-3 rounded-xl bg-[#1A1A2E] border border-[#5B21B6] outline-none shadow-md text-white focus:ring-2 focus:ring-[#8b5cf6]">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="task-notes" class="block font-semibold mb-1 text-[#e9d5ff]">Notes</label>
+                    <textarea id="task-notes" name="task-notes" rows="3" class="w-full p-3 rounded-xl bg-[#1A1A2E] border border-[#5B21B6] outline-none shadow-md text-white focus:ring-2 focus:ring-[#8b5cf6]"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-[#8b5cf6] text-white font-bold py-3 px-4 rounded-xl transition-colors duration-300 hover:bg-[#7c4dcf] focus:outline-none focus:ring-2 focus:ring-[#8b5cf6] animate-scale-hover">Add Task</button>
+                <button type="button" id="cancel-add-task" class="w-full bg-gray-600 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Task Modal (Initially hidden) -->
+    <div id="delete-task-modal" class="fixed inset-0 bg-[rgba(0,0,0,0.75)] flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#1a102c] p-8 rounded-[2rem] w-full max-w-sm border border-[#5B21B6] shadow-xl modal-content" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-bold mb-4 text-[#d8b4fe] text-center">Are you sure?</h2>
+            <p class="text-center mb-4 text-[#e9d5ff]">Do you want to delete this task?</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-delete-task" class="bg-red-500 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-300 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">Delete</button>
+                <button id="cancel-delete-task" class="bg-gray-600 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Replicate useState and useEffect
+            let classes = [];
+            let showTaskModal = false;
+            let showDeleteModal = false;
+            let currentClassId = null;
+            let taskIdToDelete = null;
+            let activeSchedule = 'regular';
+            let countdownTarget = '';
+            let countdownInterval = null;
+
+            const bellSchedules = {
+                regular: [
+                    { name: '1st', start: '8:50 a.m.', end: '9:45 a.m.' },
+                    { name: '2nd', start: '9:50 a.m.', end: '10:50 a.m.' },
+                    { name: 'Advisory', start: '10:50 a.m.', end: '11:05 a.m.' },
+                    { name: '3rd', start: '11:10 a.m.', end: '12:05 p.m.' },
+                    { name: '4a', start: '12:10 p.m.', end: '1:05 p.m.' },
+                    { name: '4b', start: '12:45 p.m.', end: '1:40 p.m.' },
+                    { name: '5th', start: '1:45 p.m.', end: '2:40 p.m.' },
+                    { name: '6th', start: '2:45 p.m.', end: '3:40 p.m.' },
+                ],
+                wednesday: [
+                    { name: '1st', start: '8:50 a.m.', end: '9:25 a.m.' },
+                    { name: '2nd', start: '9:30 a.m.', end: '10:05 a.m.' },
+                    { name: 'Advisory', start: '10:10 a.m.', end: '11:10 a.m.' },
+                    { name: '3rd', start: '11:15 a.m.', end: '11:50 a.m.' },
+                    { name: '4a', start: '11:55 a.m.', end: '12:30 p.m.' },
+                    { name: '4b', start: '12:30 p.m.', end: '1:05 p.m.' },
+                    { name: '5th', start: '1:10 p.m.', end: '1:45 p.m.' },
+                    { name: '6th', start: '1:50 p.m.', end: '2:25 p.m.' },
+                ],
+                assembly: [
+                    { name: '1st', start: '8:50 a.m.', end: '9:35 a.m.' },
+                    { name: '2nd', start: '9:40 a.m.', end: '10:25 a.m.' },
+                    { name: 'Assembly', start: '10:30 a.m.', end: '11:30 a.m.' },
+                    { name: '3rd', start: '11:35 a.m.', end: '12:20 p.m.' },
+                    { name: '4a', start: '12:20 p.m.', end: '1:05 p.m.' },
+                    { name: '4b', start: '12:55 p.m.', end: '1:40 p.m.' },
+                    { name: '5th', start: '1:45 p.m.', end: '2:40 p.m.' },
+                    { name: '6th', start: '2:45 p.m.', end: '3:40 p.m.' },
+                ],
+            };
+
+            const quickLinks = [
+                { name: 'Seattle Public Schools', url: 'https://ps.seattleschools.org/', icon: `<i class="fa-solid fa-school"></i>` },
+                { name: 'Outlook', url: 'https://outlook.office.com/', icon: `<i class="fa-solid fa-envelope"></i>` },
+                { name: 'Clever', url: 'https://clever.com/in/seattleschools', icon: `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M16.24 7.76l-2.12 2.12M14.12 14.12l-2.12-2.12"></path>
+                        <line x1="14.12" y1="9.88" x2="12" y2="12"></line>
+                        <path d="M12 12L7.76 16.24"></path>
+                    </svg>
+                ` }
+            ];
+
+            const taskModal = document.getElementById('add-task-modal');
+            const deleteModal = document.getElementById('delete-task-modal');
+
+            // --- Modal Functions ---
+            const showModal = (modalId) => {
+                document.getElementById(modalId).classList.remove('hidden');
+            };
+
+            const hideModal = (modalId) => {
+                document.getElementById(modalId).classList.add('hidden');
+            };
+
+            // --- Data Persistence (localStorage) ---
+            const loadData = () => {
+                const savedData = localStorage.getItem('classes');
+                if (savedData) {
+                    const loadedClasses = JSON.parse(savedData);
+                    const defaultClasses = [
+                        { id: 1, name: 'PHYSICS A', teacher: 'Joshua Tashima-Boyd', room: '313', tasks: [] },
+                        { id: 2, name: 'ALGEBRA 1A', teacher: 'Denise Leiby', room: '106', tasks: [] },
+                        { id: 3, name: 'PERSONAL FITNESS', teacher: 'Robert Gandy', room: 'Gym', tasks: [] },
+                        { id: 4, name: 'SPANISH 3A', teacher: 'Morgan Bracey', room: '305', tasks: [] },
+                        { id: 5, name: 'INTRO LIT COMP 9A', teacher: 'Kevin Maher', room: '108', tasks: [] },
+                        { id: 6, name: 'WORLD HISTORY 1', teacher: 'John Mangum', room: '326', tasks: [] },
+                    ];
+                    classes = defaultClasses.map(defaultClass => {
+                        const loadedClass = loadedClasses.find(c => c.id === defaultClass.id);
+                        return loadedClass ? { ...defaultClass, tasks: loadedClass.tasks || [] } : defaultClass;
+                    });
+                } else {
+                    classes = [
+                        { id: 1, name: 'PHYSICS A', teacher: 'Joshua Tashima-Boyd', room: '313', tasks: [] },
+                        { id: 2, name: 'ALGEBRA 1A', teacher: 'Denise Leiby', room: '106', tasks: [] },
+                        { id: 3, name: 'PERSONAL FITNESS', teacher: 'Robert Gandy', room: 'Gym', tasks: [] },
+                        { id: 4, name: 'SPANISH 3A', teacher: 'Morgan Bracey', room: '305', tasks: [] },
+                        { id: 5, name: 'INTRO LIT COMP 9A', teacher: 'Kevin Maher', room: '108', tasks: [] },
+                        { id: 6, name: 'WORLD HISTORY 1', teacher: 'John Mangum', room: '326', tasks: [] },
+                    ];
+                }
+            };
+
+            const saveData = () => {
+                localStorage.setItem('classes', JSON.stringify(classes));
+            };
+
+            // --- Render Functions ---
+            const renderTaskItem = (task) => {
+                const priorityColor = task.priority === 'High' ? 'text-red-300' : task.priority === 'Medium' ? 'text-yellow-300' : 'text-green-300';
+                const dueDateText = task.dueDate ? new Date(task.dueDate).toDateString() : 'No due date';
+
+                return `
+                    <div class="flex items-start justify-between p-4 border-b border-gray-800 transition-all duration-300 rounded-md hover:bg-[rgba(0,0,0,0.1)] group">
+                        <div class="flex-grow">
+                            <p class="font-medium text-lg text-[#e9d5ff]">${task.name}</p>
+                            <p class="text-sm text-gray-400 mt-1">${dueDateText} - <span class="${priorityColor}">${task.priority} Priority</span></p>
+                            ${task.notes ? `<p class="text-sm text-gray-500 italic mt-2">${task.notes}</p>` : ''}
+                        </div>
+                        <button
+                            class="text-red-300 p-2 transition-transform duration-300 transform group-hover:scale-125"
+                            data-task-id="${task.id}"
+                            data-class-id="${currentClassId}"
+                            onclick="handleOpenDeleteModal(event)"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            };
+
+            const renderClassCard = (classData) => {
+                const sortedTasks = [...classData.tasks].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                const tasksHtml = sortedTasks.map(renderTaskItem).join('');
+
+                return `
+                    <div class="bg-[#2D1A4A] p-6 rounded-[2rem] shadow-xl animate-scale-hover relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 class="text-2xl font-semibold text-[#d8b4fe]">${classData.name}</h2>
+                                <p class="text-sm text-gray-400 mt-1">${classData.teacher}</p>
+                                <p class="text-sm font-medium mt-1 text-gray-300">Room: ${classData.room}</p>
+                            </div>
+                            <button
+                                class="bg-[#6b21a8] text-white p-4 rounded-full shadow-lg transition-transform duration-300 animate-scale-add"
+                                data-class-id="${classData.id}"
+                                onclick="handleOpenTaskModal(event)"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-2 mt-4">
+                            ${tasksHtml}
+                        </div>
+                    </div>
+                `;
+            };
+
+            const renderQuickLinks = () => {
+                const container = document.getElementById('quick-links-container');
+                container.innerHTML = quickLinks.map(link => `
+                    <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center p-4 bg-[#2D1A4A] rounded-3xl shadow-lg transition-transform duration-300 hover:scale-105 text-gray-300 flex-grow basis-[45%] min-w-[120px] no-underline">
+                        <div class="text-[#d8b4fe] mb-2 text-3xl">${link.icon}</div>
+                        <p class="text-sm font-medium text-center">${link.name}</p>
+                    </a>
+                `).join('');
+            };
+
+            const getScheduleName = (scheduleType) => {
+                switch (scheduleType) {
+                    case 'regular': return 'Regular Schedule';
+                    case 'wednesday': return 'Wednesday Schedule';
+                    case 'assembly': return 'Assembly Schedule';
+                    default: return 'Schedule';
+                }
+            };
+
+            const renderBellSchedule = () => {
+                const buttonsContainer = document.getElementById('bell-schedule-buttons');
+                const tableContainer = document.getElementById('bell-schedule-table-container');
+
+                buttonsContainer.innerHTML = 
