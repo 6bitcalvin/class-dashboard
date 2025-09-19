@@ -41,9 +41,9 @@
         }
     </style>
 </head>
-<body class="bg-[#0F091A] min-h-screen text-[#e9d5ff] flex flex-col items-center">
+<body class="bg-[#0F091A] min-h-screen text-[#e9d5ff] flex flex-col items-center p-4 md:p-8">
 
-    <main class="w-full px-4 md:px-8 lg:px-12 py-6">
+    <main class="w-full max-w-5xl">
         <!-- Header Section -->
         <div class="w-full mb-8">
             <div class="p-8 rounded-[2rem] shadow-xl bg-[#1A0B2C] text-center">
@@ -60,14 +60,14 @@
         </div>
     
         <!-- Classes Section -->
-        <div id="class-cards-container" class="w-full flex flex-col gap-6 mb-8">
+        <div id="class-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <!-- Class cards will be dynamically inserted here -->
         </div>
     
         <!-- Quick Links Section -->
         <div class="w-full bg-[#1A0B2C] p-6 rounded-[2rem] shadow-xl mb-8">
             <h2 class="text-2xl font-bold text-[#d8b4fe] mb-4 text-center">Quick Links</h2>
-            <div id="quick-links-container" class="flex flex-row flex-wrap justify-center gap-4">
+            <div id="quick-links-container" class="flex flex-col sm:flex-row flex-wrap justify-center gap-4">
                 <!-- Quick links will be dynamically inserted here -->
             </div>
         </div>
@@ -78,7 +78,7 @@
         <div class="w-full flex flex-col gap-6 mb-8">
             <div class="bg-[#1A0B2C] p-8 rounded-[2rem] shadow-xl">
                 <h2 class="text-2xl font-bold text-[#d8b4fe] mb-4 text-center">Bell Schedules</h2>
-                <div id="bell-schedule-buttons" class="flex justify-center gap-2 flex-wrap mb-4">
+                <div id="bell-schedule-buttons" class="flex flex-col sm:flex-row justify-center gap-2 flex-wrap mb-4">
                     <!-- Bell schedule buttons will be dynamically inserted here -->
                 </div>
                 <div id="bell-schedule-table-container" class="bg-[#2D1A4A] p-6 rounded-3xl mt-4">
@@ -92,7 +92,7 @@
         <!-- Countdown Timer Section -->
         <div class="w-full bg-[#1A0B2C] p-8 rounded-[2rem] shadow-xl text-center">
             <h2 class="text-2xl font-bold text-[#d8b4fe] mb-4">Countdown Timer</h2>
-            <div class="flex flex-row justify-center gap-2 mb-4">
+            <div class="flex flex-row flex-wrap justify-center gap-2 mb-4">
                 <select id="hour-select" class="p-3 rounded-xl bg-[#2D1A4A] border border-[#5B21B6] text-white text-base outline-none appearance-none">
                     <option value="">Hour</option>
                 </select>
@@ -336,4 +336,191 @@
                 const buttonsContainer = document.getElementById('bell-schedule-buttons');
                 const tableContainer = document.getElementById('bell-schedule-table-container');
 
-                buttonsContainer.innerHTML = 
+                buttonsContainer.innerHTML = Object.keys(bellSchedules).map(scheduleType => `
+                    <button
+                        class="font-bold py-3 px-4 rounded-xl transition-colors duration-300 focus:outline-none cursor-pointer
+                        ${activeSchedule === scheduleType ? 'bg-[#8b5cf6] text-white' : 'bg-[#6b21a8] text-white'}"
+                        data-schedule-type="${scheduleType}"
+                        onclick="handleScheduleChange(event)"
+                    >
+                        ${getScheduleName(scheduleType)}
+                    </button>
+                `).join('');
+
+                const currentSchedule = bellSchedules[activeSchedule];
+                const tableHtml = `
+                    <h3 class="text-xl font-bold text-[#e9d5ff] mb-4 text-center">
+                        ${getScheduleName(activeSchedule)}
+                    </h3>
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="border-b-2 border-[#5B21B6]">
+                                <th class="p-3 text-left text-[#e9d5ff]">Period</th>
+                                <th class="p-3 text-left text-[#e9d5ff]">Start</th>
+                                <th class="p-3 text-left text-[#e9d5ff]">End</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${currentSchedule.map(period => `
+                                <tr class="border-b border-gray-800">
+                                    <td class="p-3 text-gray-300">${period.name}</td>
+                                    <td class="p-3 text-[#a7f3d0]">${period.start}</td>
+                                    <td class="p-3 text-[#fca5a5]">${period.end}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                tableContainer.innerHTML = tableHtml;
+            };
+
+            // --- Main Render Function ---
+            const render = () => {
+                const classesContainer = document.getElementById('class-cards-container');
+                classesContainer.innerHTML = classes.map(renderClassCard).join('');
+                renderQuickLinks();
+                renderBellSchedule();
+            };
+
+            // --- Event Handlers ---
+            window.handleOpenTaskModal = (event) => {
+                const classId = parseInt(event.currentTarget.dataset.classId);
+                currentClassId = classId;
+                showModal('add-task-modal');
+            };
+
+            window.handleOpenDeleteModal = (event) => {
+                const taskId = event.currentTarget.dataset.taskId;
+                const classId = parseInt(event.currentTarget.dataset.classId);
+                currentClassId = classId;
+                taskIdToDelete = taskId;
+                showModal('delete-task-modal');
+            };
+
+            window.handleScheduleChange = (event) => {
+                activeSchedule = event.currentTarget.dataset.scheduleType;
+                renderBellSchedule();
+            };
+
+            document.getElementById('add-task-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const taskName = form.elements['task-name'].value;
+                const dueDate = form.elements['task-due-date'].value;
+                const priority = form.elements['task-priority'].value;
+                const notes = form.elements['task-notes'].value;
+
+                if (taskName.trim() === '') return;
+
+                const newTask = {
+                    id: crypto.randomUUID(),
+                    name: taskName,
+                    dueDate: dueDate,
+                    priority: priority,
+                    notes: notes
+                };
+
+                const classToUpdate = classes.find(cls => cls.id === currentClassId);
+                if (classToUpdate) {
+                    classToUpdate.tasks.push(newTask);
+                }
+
+                hideModal('add-task-modal');
+                form.reset();
+                saveData();
+                render();
+            });
+
+            document.getElementById('confirm-delete-task').addEventListener('click', () => {
+                const classToUpdate = classes.find(cls => cls.id === currentClassId);
+                if (classToUpdate && taskIdToDelete) {
+                    classToUpdate.tasks = classToUpdate.tasks.filter(task => task.id !== taskIdToDelete);
+                }
+                hideModal('delete-task-modal');
+                taskIdToDelete = null;
+                saveData();
+                render();
+            });
+
+            document.getElementById('cancel-add-task').addEventListener('click', () => hideModal('add-task-modal'));
+            document.getElementById('cancel-delete-task').addEventListener('click', () => hideModal('delete-task-modal'));
+            taskModal.addEventListener('click', () => hideModal('add-task-modal'));
+            deleteModal.addEventListener('click', () => hideModal('delete-task-modal'));
+
+
+            // --- Countdown Timer ---
+            const hourSelect = document.getElementById('hour-select');
+            const minuteSelect = document.getElementById('minute-select');
+            const ampmSelect = document.getElementById('ampm-select');
+
+            const populateTimeSelectors = () => {
+                // Populate hours from 1 to 12
+                for (let i = 1; i <= 12; i++) {
+                    const hour = String(i).padStart(2, '0');
+                    const option = new Option(hour, hour);
+                    hourSelect.add(option);
+                }
+                // Populate minutes from 00 to 59
+                for (let i = 0; i < 60; i++) {
+                    const minute = String(i).padStart(2, '0');
+                    const option = new Option(minute, minute);
+                    minuteSelect.add(option);
+                }
+            };
+
+            const updateCountdown = () => {
+                if (!hourSelect.value || !minuteSelect.value) {
+                    document.getElementById('countdown-time').innerText = 'Select a time to start';
+                    return;
+                }
+
+                const now = new Date();
+                let hours = parseInt(hourSelect.value);
+                const minutes = parseInt(minuteSelect.value);
+                const ampm = ampmSelect.value;
+
+                if (ampm === 'pm' && hours !== 12) {
+                    hours += 12;
+                } else if (ampm === 'am' && hours === 12) {
+                    hours = 0; // Midnight
+                }
+
+                const target = new Date();
+                target.setHours(hours, minutes, 0, 0);
+
+                if (target.getTime() < now.getTime()) {
+                    target.setDate(target.getDate() + 1);
+                }
+
+                const difference = target.getTime() - now.getTime();
+                if (difference > 0) {
+                    const hoursLeft = Math.floor(difference / (1000 * 60 * 60));
+                    const minutesLeft = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                    const secondsLeft = Math.floor((difference % (1000 * 60)) / 1000);
+                    document.getElementById('countdown-time').innerText = `${hoursLeft}h ${minutesLeft}m ${secondsLeft}s`;
+                } else {
+                    document.getElementById('countdown-time').innerText = 'Time\'s up!';
+                    clearInterval(countdownInterval);
+                }
+            };
+            
+            const handleTimeChange = () => {
+                clearInterval(countdownInterval);
+                countdownInterval = setInterval(updateCountdown, 1000);
+                updateCountdown();
+            };
+
+            hourSelect.addEventListener('change', handleTimeChange);
+            minuteSelect.addEventListener('change', handleTimeChange);
+            ampmSelect.addEventListener('change', handleTimeChange);
+
+
+            // Initial load and render
+            loadData();
+            render();
+            populateTimeSelectors();
+            updateCountdown();
+        });
+    </script>
+</body>
+</html>
